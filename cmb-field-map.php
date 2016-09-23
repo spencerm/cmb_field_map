@@ -33,27 +33,39 @@ class PW_CMB2_Field_Google_Maps {
 	 */
 	public function render_pw_map( $field, $field_escaped_value, $field_object_id, $field_object_type, $field_type_object ) {
 		$this->setup_admin_scripts();
+          
+          $api_key = get_option( 'cmb_field_map_settings_option_name' );
+          $api_key = $api_key['cmb_field_map_google_map_api'];
+          if(!empty($api_key)) {
 
-		echo '<input type="text" class="large-text pw-map-search" id="' . $field->args( 'id' ) . '" />';
+           echo '<input type="text" class="large-text pw-map-search" id="' . $field->args( 'id' ) . '" />';
+  	   echo '<div class="pw-map"></div>';
+           $field_type_object->_desc( true, true );
+           echo $field_type_object->input(
+            array(
+             'type'       => 'hidden',
+             'name'       => $field->args('_name') . '[latitude]',
+             'value'      => isset( $field_escaped_value['latitude'] ) ? $field_escaped_value['latitude'] : '',
+             'class'      => 'pw-map-latitude',
+             'desc'       => '',
+            )
+           );
+           echo $field_type_object->input(
+            array(
+             'type'       => 'hidden',
+             'name'       => $field->args('_name') . '[longitude]',
+             'value'      => isset( $field_escaped_value['longitude'] ) ? $field_escaped_value['longitude'] : '',
+             'class'      => 'pw-map-longitude',
+             'desc'       => '',
+            )
+           );
 
-		echo '<div class="pw-map"></div>';
+          } else {
+           echo '<div class="pw_map_notice">';
+            echo '<p>Please add your Google API Key <a href="'.get_admin_url().'options-general.php?page=cmb-field-map-settings">here</a></p>';
+           echo '</div>';
+          } // end API Key
 
-		$field_type_object->_desc( true, true );
-
-		echo $field_type_object->input( array(
-			'type'       => 'hidden',
-			'name'       => $field->args('_name') . '[latitude]',
-			'value'      => isset( $field_escaped_value['latitude'] ) ? $field_escaped_value['latitude'] : '',
-			'class'      => 'pw-map-latitude',
-			'desc'       => '',
-		) );
-		echo $field_type_object->input( array(
-			'type'       => 'hidden',
-			'name'       => $field->args('_name') . '[longitude]',
-			'value'      => isset( $field_escaped_value['longitude'] ) ? $field_escaped_value['longitude'] : '',
-			'class'      => 'pw-map-longitude',
-			'desc'       => '',
-		) );
 	}
 
 	/**
@@ -73,19 +85,21 @@ class PW_CMB2_Field_Google_Maps {
 		return $value;
 	}
 
-	/**
-	 * Enqueue scripts and styles
-	 */
-	public function setup_admin_scripts() {
-		$api_url = '//maps.googleapis.com/maps/api/js?libraries=places';
-  $api_key = apply_filters( 'pw-google-maps-api-key', '' );
+ /**
+ * Enqueue scripts and styles
+ */
+ public function setup_admin_scripts() {
+  $api_url = '//maps.googleapis.com/maps/api/js?libraries=places';
+  $api_key = get_option( 'cmb_field_map_settings_option_name' );
+  $api_key = $api_key['cmb_field_map_google_map_api'];
   if ( ! empty( $api_key ) ) {
    $api_url .= '&key=' . $api_key;
+   wp_register_script( 'pw-google-maps-api', $api_url, null, null );
   }
-  wp_register_script( 'pw-google-maps-api', $api_url, null, null );
   wp_enqueue_script( 'pw-google-maps', plugins_url( 'js/script.js', __FILE__ ), array( 'pw-google-maps-api' ), self::VERSION );
   wp_enqueue_style( 'pw-google-maps', plugins_url( 'css/style.css', __FILE__ ), array(), self::VERSION );
-	}
+ }
+
 }
 $pw_cmb2_field_google_maps = new PW_CMB2_Field_Google_Maps();
 

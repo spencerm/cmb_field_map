@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: CMB2 Field Type: Google Maps
-Plugin URI: https://github.com/gareth-gillman/cmb_field_map
-GitHub Plugin URI: https://github.com/gareth-gillman/cmb_field_map
+Plugin URI: https://github.com/spencerm/cmb_field_map
+GitHub Plugin URI: https://github.com/spencerm/cmb_field_map
 Description: Google Maps field type for CMB2.
-Version: 2.2
-Author: Phil Wylie & Gareth Gillman
+Version: 2.3
+Author: Phil Wylie & Gareth Gillman & Spencer McCormick
 Author URI:
 License: GPLv2+
 */
@@ -18,7 +18,7 @@ class PW_CMB2_Field_Google_Maps {
 	/**
 	 * Current version number
 	 */
-	const VERSION = '2.1.1';
+	const VERSION = '2.3.1';
 
 	/**
 	 * Initialize the plugin by hooking into CMB2
@@ -33,38 +33,47 @@ class PW_CMB2_Field_Google_Maps {
 	 */
 	public function render_pw_map( $field, $field_escaped_value, $field_object_id, $field_object_type, $field_type_object ) {
 		$this->setup_admin_scripts();
-          
-          $api_key = get_option( 'cmb_field_map_settings_option_name' );
-          $api_key = $api_key['cmb_field_map_google_map_api'];
-          if(!empty($api_key)) {
 
-           echo '<input type="text" class="large-text pw-map-search" id="' . $field->args( 'id' ) . '" />';
-  	   echo '<div class="pw-map"></div>';
-           $field_type_object->_desc( true, true );
-           echo $field_type_object->input(
-            array(
-             'type'       => 'hidden',
-             'name'       => $field->args('_name') . '[latitude]',
-             'value'      => isset( $field_escaped_value['latitude'] ) ? $field_escaped_value['latitude'] : '',
-             'class'      => 'pw-map-latitude',
-             'desc'       => '',
-            )
-           );
-           echo $field_type_object->input(
-            array(
-             'type'       => 'hidden',
-             'name'       => $field->args('_name') . '[longitude]',
-             'value'      => isset( $field_escaped_value['longitude'] ) ? $field_escaped_value['longitude'] : '',
-             'class'      => 'pw-map-longitude',
-             'desc'       => '',
-            )
-           );
+    $api_key = get_option( 'cmb_field_map_settings_option_name' );
+    $api_key = $api_key['cmb_field_map_google_map_api'];
 
-          } else {
-           echo '<div class="pw_map_notice">';
-            echo '<p>Please add your Google API Key <a href="'.get_admin_url().'options-general.php?page=cmb-field-map-settings">here</a></p>';
-           echo '</div>';
-          } // end API Key
+    if(!empty($api_key)) {
+
+      $field_type_object->_desc( true, true );
+      echo $field_type_object->input( array(
+        'type'  => 'text',
+        'name'  => $field->args('_name') . '[address]',
+        'value' =>  isset( $field_escaped_value['address'] ) ? $field_escaped_value['address'] : '',
+        'class' => 'large-text pw-map-search',
+        'id'  => $field->args( 'id' ),
+        'desc'  => '',
+      ) );
+      echo '<div class="pw-map"></div>';
+      $field_type_object->_desc( true, true );
+      echo $field_type_object->input(
+        array(
+         'type'       => 'hidden',
+         'name'       => $field->args('_name') . '[latitude]',
+         'value'      => isset( $field_escaped_value['latitude'] ) ? $field_escaped_value['latitude'] : '',
+         'class'      => 'pw-map-latitude',
+         'desc'       => '',
+        )
+       );
+       echo $field_type_object->input(
+        array(
+         'type'       => 'hidden',
+         'name'       => $field->args('_name') . '[longitude]',
+         'value'      => isset( $field_escaped_value['longitude'] ) ? $field_escaped_value['longitude'] : '',
+         'class'      => 'pw-map-longitude',
+         'desc'       => '',
+        )
+       );
+
+    } else {
+     echo '<div class="pw_map_notice">';
+      echo '<p>Please add your Google API Key <a href="'.get_admin_url().'options-general.php?page=cmb-field-map-settings">here</a></p>';
+     echo '</div>';
+    } // end API Key
 
 	}
 
@@ -80,8 +89,11 @@ class PW_CMB2_Field_Google_Maps {
 			if ( ! empty( $value['longitude'] ) ) {
 				update_post_meta( $object_id, $field_args['id'] . '_longitude', $value['longitude'] );
 			}
-		}
 
+    }
+    if( ! empty( $value['address'] ) ) {
+      update_post_meta( $object_id, $field_args['id'] . '_address', $value['address'] );
+    }
 		return $value;
 	}
 

@@ -3,7 +3,7 @@
     "description": "Google Maps field type for Custom Metaboxes and Fields for WordPress",
     "type": "wordpress-plugin",
     "keywords": ["wordpress", "plugin"],
-    "homepage": "https://github.com/gareth-gillman/cmb_field_map/",
+    "homepage": "https://github.com/spencerm/cmb_field_map/",
     "authors": [
         {
             "name": "Phil Wylie",
